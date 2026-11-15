@@ -4,21 +4,32 @@ from collections import Counter
 from pathlib import Path
 
 from .attachment_analysis import analyze_attachment
+from .auth_verification import verify_authentication
 from .body_analysis import analyze_body
 from .config import load_rules, validate_rules
 from .header_analysis import analyze_headers
-from .parsing import decode_text, iter_parts, parse_message
+from .parsing import decode_text, iter_parts, read_message
+from .resolver import OfflineResolver
 from .scoring import score_signals
 from .url_analysis import analyze_urls
 
-SCHEMA_VERSION = "2.0"
+SCHEMA_VERSION = "2.1"
 
 
-def analyze(path: Path, rules: dict | None = None) -> dict:
+def analyze(path: Path, rules: dict | None = None, *, resolver=None, check_spf: bool = False) -> dict:
+    """Analyze one message file.
+
+    ``resolver`` answers DNS questions for DKIM keys, SPF, and DMARC. The
+    default answers nothing, so the analysis stays offline. ``check_spf``
+    turns on SPF evaluation, which needs a resolver with records.
+    """
     rules = validate_rules(rules if rules is not None else load_rules())
     limits = rules["limits"]
-    message = parse_message(path, limits)
+    resolver = resolver or OfflineResolver()
+    message, raw = read_message(path, limits)
     header_data, signals = analyze_headers(message, rules)
+    auth, auth_signals = verify_authentication(message, raw, rules, resolver, check_spf)
+    signals.extend(auth_signals)
     attachments = []
     plain_parts: list[str] = []
     html_parts: list[str] = []
@@ -63,8 +74,13 @@ def analyze(path: Path, rules: dict | None = None) -> dict:
     signals.extend(url_signals)
     score, verdict, weighted = score_signals(signals, rules)
 
+    if getattr(resolver, "live", False):
+        network_note = "Live DNS was queried for DKIM keys, SPF, and DMARC records only. No URL or reputation service was contacted."
+    else:
+        network_note = "Analysis is static and offline. No URL, DNS name, or reputation service was contacted."
     notes = [
-        "Analysis is static and offline. No URL, DNS name, or reputation service was contacted.",
+        network_note,
+        "auth holds local DKIM, SPF, and DMARC results. They never come from Authentication-Results headers.",
         "wrapped_targets lists URLs decoded from wrapper link parameters. They show what a link names, not where an HTTP request would end up.",
         "Authentication results are used only from trusted_authserv_ids inside the trusted receiving boundary; see ignored_authentication_results for the rest.",
         "Domain age comes only from local domain_hints entries. It is not a registration lookup.",
@@ -78,6 +94,7 @@ def analyze(path: Path, rules: dict | None = None) -> dict:
         "schema_version": SCHEMA_VERSION,
         "source_file": path.name,
         "message": header_data,
+        "auth": auth,
         "verdict": verdict,
         "score": score,
         "signals": weighted,

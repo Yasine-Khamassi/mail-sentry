@@ -8,6 +8,16 @@ from pathlib import Path
 
 
 def parse_message(path: Path, limits: dict) -> Message:
+    return read_message(path, limits)[0]
+
+
+def read_message(path: Path, limits: dict) -> tuple[Message, bytes | None]:
+    """Parse the input and return it with its raw bytes.
+
+    Raw bytes are needed for DKIM verification. They are only available for
+    .eml input; an Outlook .msg does not keep the original MIME bytes.
+    """
+    raw: bytes | None = None
     if path.suffix.lower() not in {".eml", ".msg"}:
         raise ValueError("input must have an .eml or .msg extension")
     maximum = int(limits["max_input_bytes"])
@@ -45,7 +55,7 @@ def parse_message(path: Path, limits: dict) -> Message:
             except Exception:
                 pass
     _enforce_part_limit(message, int(limits["max_mime_parts"]))
-    return message
+    return message, raw
 
 
 def _normalize_msg(msg: object) -> Message:

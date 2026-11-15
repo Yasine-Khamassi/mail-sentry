@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from .analyzer import analyze, load_rules
+from .resolver import LiveResolver, OfflineResolver, StaticResolver
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -14,14 +15,25 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("-o", "--output", help="Write JSON report to this path; stdout is used by default")
     parser.add_argument("--rules", help="Path to a JSON rules configuration")
     parser.add_argument("--pretty", action="store_true", help="Indent JSON output for humans")
+    parser.add_argument("--check-spf", action="store_true", help="Evaluate SPF for the client your gateway received the message from (uses live DNS unless --dns-records is given)")
+    parser.add_argument("--dns", action="store_true", help="Allow live DNS lookups for DKIM keys and the DMARC policy")
+    parser.add_argument("--dns-records", metavar="PATH", help="Answer DNS questions from a JSON record snapshot instead of the network")
     return parser
+
+
+def build_resolver(args: argparse.Namespace):
+    if args.dns_records:
+        return StaticResolver.from_file(args.dns_records)
+    if args.dns or args.check_spf:
+        return LiveResolver()
+    return OfflineResolver()
 
 
 def main() -> int:
     args = build_parser().parse_args()
     try:
         path = Path(args.input)
-        report = analyze(path, load_rules(args.rules))
+        report = analyze(path, load_rules(args.rules), resolver=build_resolver(args), check_spf=args.check_spf)
         rendered = json.dumps(report, indent=2 if args.pretty else None, ensure_ascii=False) + "\n"
         if args.output:
             Path(args.output).write_text(rendered, encoding="utf-8")

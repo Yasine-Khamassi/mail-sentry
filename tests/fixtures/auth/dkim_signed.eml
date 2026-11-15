@@ -1,0 +1,19 @@
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=signer.example;
+ i=@signer.example; q=dns/txt; s=sel1; t=1794781304; h=from : to :
+ subject : date : message-id;
+ bh=vwBIM+62ucJO/qyk0YbEGMlzBIaDIrNvWH0kr+6z8DQ=;
+ b=A8W29D5I2lPvO6okoszvNwvbr3neAea2nXSRSIC0EU1DwrVxh8Q3c7iFJs3zawtp/6hjx
+ yneQAVr53y4J3TFRFg7EtVS2GH2UUbt25DILp3v99xhaOTgxjeJS7MHJewCtguFWkQE7GTa
+ 0CBqrCrslo9iWsxhmTIN95TgcQt68TrASip7hMBwUO5q0h7DGtl4iADSEMBBk6Ls2kQ1yms
+ MpqIw3vrCdx2udnYCn9xpEjrRmECh5cOPFo8x6yhEdmvS78JtPmlzGp9n2/R5pq4FrM1OGn
+ 2qnVLXXZtItUl/DTvHxuYuDLjhKCWUtkb/mPoQra58Pb+OnrAFU/hc6tQPaw==
+From: Billing <billing@signer.example>
+To: Alex Morgan <alex@northwind.example>
+Subject: Your November statement
+Date: Mon, 09 Nov 2026 10:03:00 +0000
+Message-ID: <statement-1107@signer.example>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Your statement is ready in the customer portal.
+The amount due is 42.00 EUR.

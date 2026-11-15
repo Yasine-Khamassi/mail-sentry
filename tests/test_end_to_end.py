@@ -118,7 +118,7 @@ class CliTests(unittest.TestCase):
         completed = self.run_cli(str(ROOT / "samples" / "phishing.eml"))
         self.assertEqual(completed.returncode, 0)
         report = json.loads(completed.stdout)
-        self.assertEqual(report["schema_version"], "2.0")
+        self.assertEqual(report["schema_version"], "2.1")
 
     def test_missing_file_exits_two(self):
         completed = self.run_cli(str(ROOT / "samples" / "missing.eml"))

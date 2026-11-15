@@ -1,0 +1,7 @@
+{
+  "sel1._domainkey.signer.example": {
+    "TXT": [
+      "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0WSVvf1jo7nkz00rkqdrMDf7+hsWYT3txN89+NKyFsdkWlfxhAq79t8UVY6l8Qh/7kITMWgDHJqiHXyWQOt/czgOkoH/ZKVISjOeDCVdFjhlo5awJtTeCFQReaArwD9Ldq52bA9rtcuYg3c8+D2cxFV3M+MB/o6f/krS/BRmweYOwBUtYS6lqm/rr8+CGfY9TYwkOY6D1Bwq/8rc5AqtxBMIJwsrWfGMrFZyQFGSPplvkjzOqu6MQaoHVdaXCBSbIFQ95avwYBLNXnnypxODL2TCEG4I2490gcyQTFijm7opcrYTFHfzgTRIDriLvntX3kqTacEd1/hLYzNC3ClDKwIDAQAB"
+    ]
+  }
+}

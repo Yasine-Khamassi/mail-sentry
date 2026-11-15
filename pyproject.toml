@@ -11,6 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 msg = ["extract-msg>=0.48"]
+auth = ["dkimpy>=1.1", "pyspf>=2.0.14", "dnspython>=2.4"]
 
 [project.scripts]
 mail-sentry = "mail_sentry.cli:main"

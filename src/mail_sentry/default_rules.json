@@ -10,7 +10,7 @@
   "domain_hints": {},
   "new_domain_days": 30,
   "weights": {
-    "auth_fail": 18, "sender_mismatch": 10, "reply_to_mismatch": 16, "malformed_sender": 10,
+    "auth_fail": 18, "dkim_fail": 14, "spf_fail": 10, "dmarc_fail": 18, "sender_mismatch": 10, "reply_to_mismatch": 16, "malformed_sender": 10,
     "sender_lookalike": 22, "display_name_spoof": 14,
     "received_anomaly": 10, "mailer_anomaly": 6, "credential_form": 28,
     "hidden_content": 10, "script_content": 18, "link_text_mismatch": 16, "data_uri_link": 18,
