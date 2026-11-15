@@ -1,25 +1,22 @@
 from __future__ import annotations
 
 import hashlib
-import io
 import math
 import re
-import zipfile
 from collections import Counter
 
+from .archives import OFFICE_ARCHIVES, ArchiveScan, archive_kind
 from .body_analysis import inspect_html
 from .url_analysis import BIDI_CONTROLS, INVISIBLE_CHARS, extract_urls
 
 DOCUMENT_EXTENSIONS = ("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "rtf", "txt", "csv", "odt", "ods", "jpg", "jpeg", "png", "gif", "bmp", "tif", "tiff", "mp3", "mp4", "wav", "htm", "html", "eml", "msg", "zip")
 DOUBLE_EXTENSION = re.compile(r"\.(?:%s)[\s._-]*\.([a-z0-9]{1,5})$" % "|".join(DOCUMENT_EXTENSIONS), re.I)
-OFFICE_ARCHIVES = (".docx", ".xlsx", ".pptx", ".docm", ".xlsm", ".pptm", ".dotm", ".xltm", ".potm", ".ppsm", ".xlam", ".odt", ".ods", ".odp")
 MACRO_EXTENSIONS = (".docm", ".xlsm", ".pptm", ".dotm", ".xltm", ".potm", ".ppsm", ".xlam", ".xlsb")
-ARCHIVE_EXTENSIONS = (".zip", ".7z", ".rar", ".gz", ".tgz", ".tar", ".cab", ".arj", ".lzh", ".ace", ".xz", ".bz2")
+ARCHIVE_EXTENSIONS = (".zip", ".7z", ".rar", ".gz", ".tgz", ".tar", ".cab", ".arj", ".lzh", ".ace", ".xz", ".bz2", ".tbz2", ".txz")
 HTML_EXTENSIONS = (".htm", ".html", ".shtml", ".xhtml", ".svg", ".mht", ".mhtml")
 # Formats whose bytes are compressed or encoded by design; high entropy is normal.
-COMPRESSED_TYPES = {"zip", "gzip", "rar", "7z", "pdf", "ole", "png", "jpeg", "gif", "cab", "bzip2", "xz"}
+COMPRESSED_TYPES = {"zip", "gzip", "rar", "7z", "pdf", "ole", "png", "jpeg", "gif", "cab", "bzip2", "xz", "tar", "iso"}
 COMPRESSED_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp3", ".mp4", ".m4a", ".mov", ".avi", ".heic", ".pdf") + ARCHIVE_EXTENSIONS + OFFICE_ARCHIVES
-TEXT_MEMBERS = (".xml", ".rels", ".txt", ".html", ".htm", ".svg", ".url", ".csv", ".js", ".vbs", ".hta", ".ps1", ".bat", ".cmd")
 MAGIC = (
     (b"MZ", "pe"), (b"\x7fELF", "elf"), (b"PK\x03\x04", "zip"), (b"PK\x05\x06", "zip"),
     (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", "ole"), (b"%PDF-", "pdf"), (b"Rar!\x1a\x07", "rar"),
@@ -42,6 +39,8 @@ def sniff(data: bytes) -> str | None:
             return kind
     if len(data) > 0x8006 and data[0x8001:0x8006] == b"CD001":
         return "iso"
+    if len(data) > 262 and data[257:262] == b"ustar":
+        return "tar"
     return None
 
 
@@ -79,88 +78,6 @@ def _name_risks(name: str, dangerous: tuple[str, ...]) -> list[tuple[str, str]]:
 NAME_FLAGS = {"dangerous_attachment": "dangerous file type", "double_extension": "double extension", "filename_spoofing": "disguised file name"}
 
 
-def _rar_headers_encrypted(data: bytes) -> bool:
-    """True for RAR5 archives whose first header is an archive encryption header."""
-    if not data.startswith(b"Rar!\x1a\x07\x01\x00"):
-        return False
-    position = 8 + 4  # signature, header CRC32
-    values = []
-    for _ in range(2):  # header size, header type (both variable length integers)
-        value, shift = 0, 0
-        while position < len(data) and shift < 64:
-            byte = data[position]
-            position += 1
-            value |= (byte & 0x7F) << shift
-            shift += 7
-            if not byte & 0x80:
-                break
-        values.append(value)
-    return len(values) == 2 and values[1] == 4
-
-
-class ArchiveScan:
-    def __init__(self, limits: dict) -> None:
-        self.entries_left = int(limits["max_archive_entries"])
-        self.bytes_left = int(limits["max_archive_uncompressed_bytes"])
-        self.max_depth = int(limits.get("max_archive_depth", 2))
-        self.max_ratio = int(limits.get("max_compression_ratio", 100))
-        self.members: list[str] = []
-        self.urls: list[str] = []
-        self.encrypted: list[str] = []
-        self.limit_notes: list[str] = []
-        self.macro = False
-
-    def scan(self, data: bytes, depth: int = 0, prefix: str = "") -> None:
-        try:
-            archive = zipfile.ZipFile(io.BytesIO(data))
-            entries = archive.infolist()
-        except (zipfile.BadZipFile, OSError, ValueError, NotImplementedError):
-            self.limit_notes.append(f"{prefix or 'archive'}: not a readable ZIP container")
-            return
-        with archive:
-            for info in entries:
-                if self.entries_left <= 0:
-                    self.limit_notes.append("archive entry limit reached")
-                    return
-                self.entries_left -= 1
-                member = prefix + info.filename
-                self.members.append(member)
-                lower = info.filename.lower()
-                if lower.endswith("vbaproject.bin"):
-                    self.macro = True
-                if info.flag_bits & 0x1:
-                    self.encrypted.append(member)
-                    continue
-                if info.is_dir():
-                    continue
-                if info.compress_size and info.file_size / info.compress_size > self.max_ratio and info.file_size > 1_000_000:
-                    self.limit_notes.append(f"{member}: compression ratio above {self.max_ratio}, not expanded")
-                    continue
-                nested = lower.endswith((".zip",) + OFFICE_ARCHIVES)
-                if not (lower.endswith(TEXT_MEMBERS) or nested):
-                    continue
-                if nested and depth + 1 > self.max_depth:
-                    self.limit_notes.append(f"{member}: nested archive deeper than {self.max_depth} levels, not expanded")
-                    continue
-                if info.file_size > self.bytes_left:
-                    self.limit_notes.append("archive expanded size limit reached")
-                    return
-                try:
-                    with archive.open(info) as stream:
-                        content = stream.read(self.bytes_left + 1)
-                except (RuntimeError, zipfile.BadZipFile, OSError, ValueError, NotImplementedError, EOFError):
-                    self.limit_notes.append(f"{member}: could not be read")
-                    continue
-                if len(content) > self.bytes_left:
-                    self.limit_notes.append("archive expanded size limit reached")
-                    return
-                self.bytes_left -= len(content)
-                if nested:
-                    self.scan(content, depth + 1, member + "/")
-                else:
-                    self.urls.extend(extract_urls(content.decode("utf-8", "replace")))
-
-
 def analyze_attachment(name: str, content_type: str, data: bytes, rules: dict) -> tuple[dict, list[dict]]:
     cleaned, _notes = clean_filename(name)
     lower = cleaned.lower()
@@ -191,7 +108,7 @@ def analyze_attachment(name: str, content_type: str, data: bytes, rules: dict) -
     if detected in {"pe", "elf", "lnk"} and not lower.endswith(dangerous):
         flags.append(f"content is {detected} executable")
         add("type_mismatch", f"Attachment content is an executable ({detected}) but the name ends in .{extension or '(none)'}", cleaned)
-    elif detected in {"zip", "rar", "7z", "cab", "iso"} and extension in {"pdf", "jpg", "jpeg", "png", "gif", "txt", "csv", "rtf"}:
+    elif detected in {"zip", "rar", "7z", "cab", "iso", "tar", "gzip", "bzip2", "xz"} and extension in {"pdf", "jpg", "jpeg", "png", "gif", "txt", "csv", "rtf"}:
         flags.append(f"content is a {detected} container")
         add("type_mismatch", f"Attachment content is a {detected} container but the name ends in .{extension}", cleaned)
 
@@ -206,16 +123,20 @@ def analyze_attachment(name: str, content_type: str, data: bytes, rules: dict) -
 
     report: dict = {"filename": name, "content_type": content_type, "size": len(data), "sha256": hashlib.sha256(data).hexdigest() if data else None, "entropy": ent, "detected_type": detected, "flags": flags}
 
-    if detected == "zip" or lower.endswith((".zip",) + OFFICE_ARCHIVES):
+    kind = archive_kind(data, lower) if data else None
+    if kind or lower.endswith(ARCHIVE_EXTENSIONS):
         scan = ArchiveScan(limits)
-        scan.scan(data)
+        opened = scan.scan(data, name=lower) if kind else False
+        report["archive_format"] = kind
         report["archive_members"] = scan.members[:50]
         if scan.macro and not lower.endswith(MACRO_EXTENSIONS):
             flags.append("VBA project inside Office archive")
             add("macro_attachment", f"Office archive contains a VBA project: {cleaned}", cleaned)
         if scan.encrypted:
             flags.append("encrypted archive")
-            add("encrypted_archive", f"Archive has {len(scan.encrypted)} password-protected member(s): {cleaned}", ", ".join(scan.encrypted[:5]))
+            add("encrypted_archive", f"Archive has {len(scan.encrypted)} password-protected item(s): {cleaned}", ", ".join(scan.encrypted[:5]))
+        elif not opened:
+            flags.append("archive encryption status not inspected for this format")
         risky_members = []
         for member in scan.members:
             for rule, reason in _name_risks(member.rsplit("/", 1)[-1], dangerous):
@@ -224,6 +145,9 @@ def analyze_attachment(name: str, content_type: str, data: bytes, rules: dict) -
         if risky_members:
             flags.append("archive contains risky file names")
             add("archive_dangerous_member", f"Archive contains {len(risky_members)} risky file name(s)", "; ".join(risky_members[:5]))
+        nested_formats = list(dict.fromkeys(scan.formats[1:]))
+        if nested_formats:
+            report["nested_archive_formats"] = nested_formats
         if scan.limit_notes:
             flags.append("archive inspection limit reached")
             report["archive_notes"] = list(dict.fromkeys(scan.limit_notes))[:20]
@@ -231,12 +155,6 @@ def analyze_attachment(name: str, content_type: str, data: bytes, rules: dict) -
         if urls:
             flags.append("embedded URL strings")
             add("embedded_attachment_url", f"Attachment contains {len(urls)} URL string(s) in bounded archive text", ", ".join(urls[:3]))
-    elif detected in {"rar", "7z", "cab", "gzip", "bzip2", "xz", "iso"} or lower.endswith(ARCHIVE_EXTENSIONS):
-        if _rar_headers_encrypted(data):
-            flags.append("encrypted archive")
-            add("encrypted_archive", f"RAR archive has encrypted headers: {cleaned}", cleaned)
-        else:
-            flags.append("archive encryption status not inspected for this format")
     elif data:
         text = data.decode("utf-8", "replace") if lower.endswith(HTML_EXTENSIONS) else data.decode("latin-1")
         if lower.endswith(HTML_EXTENSIONS):

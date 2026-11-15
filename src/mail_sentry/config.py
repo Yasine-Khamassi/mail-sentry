@@ -11,6 +11,7 @@ LIMIT_DEFAULTS = {
     "max_mime_parts": 500,
     "max_attachment_bytes": 15_000_000,
     "max_archive_entries": 500,
+    "max_archive_members": 200,
     "max_archive_uncompressed_bytes": 50_000_000,
     "max_archive_depth": 2,
     "max_compression_ratio": 100,
