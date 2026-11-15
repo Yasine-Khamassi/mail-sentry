@@ -1,124 +1,172 @@
 # Mail Sentry
 
-Mail Sentry is a command line triage tool for `.eml` and Outlook `.msg` files. It extracts message metadata, inspects headers, HTML, links, and attachments, then produces a JSON report with a weighted score and the rules that contributed to it.
+Mail Sentry triages suspicious email for a SOC. Point it at an `.eml` or Outlook `.msg` file and it returns a JSON report: a score, a verdict, and every rule that fired with the evidence behind it.
 
-The analyzer is designed for offline handling of potentially hostile messages. It does not open URLs, perform DNS lookups, query reputation services, or execute attachments.
+It runs offline. It never opens URLs, resolves DNS names, queries reputation services, or executes attachments, so you can run it against live phishing samples on an isolated host.
 
-## Features
+## What it checks
 
-* SPF, DKIM, and DMARC results from configured trusted `Authentication-Results` servers, sender identity mismatches, unusual Received chains, and suspicious mailer strings
-* Credential form, hidden content, active HTML, urgency, and payment lure checks
-* Static URL extraction from HTML and plain text, with percent and HTML entity decoding, IDN and punycode checks, IP literal and URL userinfo checks, known shortener hints, and basic brand lookalike checks
-* Attachment names, media types, sizes, SHA 256 hashes, byte entropy, risky extensions, deceptive double extensions, macro formats, encrypted ZIP indicators, and embedded URL strings in bounded document archive members
-* Rule weights and verdict thresholds are configurable with JSON
-* JSON output includes signal names, weights, explanations, and evidence snippets
-* Optional MSG import with `extract-msg`
-* Configurable limits for raw message size, MIME parts, attachment size, archive entries, expanded archive bytes, and nested redirect decoding
+**Headers**
+* SPF, DKIM, and DMARC results, read only from your own gateway (see [Authentication trust](#authentication-trust))
+* From, Return-Path, and Reply-To compared by organizational domain, so `mail.shop.example` and `bounces.shop.example` do not count as a mismatch
+* Display names that carry a different address (`"ceo@brand.example" <x@other.example>`) or name a brand the sender address does not belong to
+* Sender domains that imitate a brand (`micros0ft-login.example`)
+* Duplicate or unparseable From headers, odd Received chains, and scripted X-Mailer values
+
+**HTML and text**
+* Password fields, with the form action they post to
+* Scripts, any `on*` event handler, `javascript:` URLs, iframes, `srcdoc` documents (parsed too), and meta refresh redirects
+* Hidden content that matters: large hidden text blocks, links inside hidden elements, zero width characters inside words, and bidirectional override characters. A short hidden preheader on its own is not flagged.
+* Link text that shows one domain while the link goes to another
+* Urgency and payment lure phrases in the subject and visible text. Hidden text is not used for these.
+
+**URLs**
+* Normalized the way a browser reads them: tabs and invisible characters removed, backslashes treated as slashes, percent escapes in the host decoded, IDN converted to punycode, dot segments resolved
+* IP hosts, including integer, hex, and octal IPv4 forms such as `http://3232235777/`
+* User info before the host (`https://microsoft.com@198.51.100.25/`)
+* Punycode hosts, with a stronger finding when a label mixes Latin and Cyrillic or Greek letters
+* Brand lookalikes using a homoglyph skeleton (digit swaps, `rn` for `m`, common Cyrillic and Greek confusables) plus edit distance and brand tokens
+* `data:` URIs that render HTML or SVG, known shorteners, and high abuse TLDs
+* Obfuscation in the scheme or host. Ordinary percent encoding in query strings is not flagged.
+* Wrapper links (`?url=`, `?u=`, `#url=` and similar) are decoded to show which URL they name
+
+**Attachments**
+* SHA 256, size, entropy, and the real file type from magic bytes
+* Executables or containers named as documents (`scan.pdf` that starts with `MZ`)
+* Risky extensions, padded or deceptive double extensions, right to left override tricks, and trailing dots
+* Macro formats, VBA projects inside `.docx` files, and VBA in legacy OLE Office files
+* HTML and SVG attachments, including password forms inside them
+* ZIP and Office archives: every member name is checked, nested archives are opened up to a depth limit, encrypted members are reported by name, and text members are searched for URLs
+* RAR5 archives with encrypted headers
+* High entropy only for file types that are not compressed by design, so ordinary JPEG, PDF, and ZIP files do not trip it
 
 ## Install and run
 
-Python 3.10 or later is required. The base application uses only the standard library.
+Python 3.10 or later. The core uses only the standard library. MSG support needs `extract-msg`.
 
 ```powershell
-py -m pip install -e .
+python -m pip install -e ".[msg]"
 mail-sentry samples/phishing.eml --pretty
-```
-
-Analyze an Outlook MSG file by installing the optional reader:
-
-```powershell
-py -m pip install -e ".[msg]"
 mail-sentry message.msg --output report.json --pretty
 ```
 
-Without installing the console command, run:
+Without the console script:
 
 ```powershell
-py -m mail_sentry.cli samples/suspicious.eml --pretty
+python -m mail_sentry.cli samples/suspicious.eml --pretty
 ```
 
-The command exits with code `0` when analysis completes and `2` for an input or configuration error. A successful analysis always emits one JSON document, including low risk messages.
+Exit codes: `0` when a report was written, `2` for input or configuration errors, `3` when a malformed message could not be analyzed.
 
 ## Example output
 
+Abbreviated report for `samples/phishing.eml`:
+
 ```json
 {
-  "schema_version": "1.1",
-  "source_file": "phishing.eml",
+  "schema_version": "2.0",
   "verdict": "high_confidence_phishing",
   "score": 100,
   "signals": [
-    {"rule": "auth_fail", "weight": 18, "detail": "A configured trusted authentication server reported a failed check"},
-    {"rule": "credential_form", "weight": 28, "detail": "HTML message contains a form and password input"}
+    {"rule": "credential_form", "weight": 28, "count": 1,
+     "detail": "HTML message contains a form with a password field",
+     "evidence": ["form action: https://signin-microsoft.example/collect"]},
+    {"rule": "sender_lookalike", "weight": 22, "count": 1,
+     "detail": "Sender domain resembles a trusted brand domain (microsoft.com)",
+     "evidence": ["micros0ft-login.example"]}
   ],
-  "urls": [],
+  "urls": [
+    {"url": "https://microsoft.com@198.51.100.25/secure", "host": "198.51.100.25",
+     "flags": ["userinfo before hostname", "IP literal"], "wrapped_targets": []}
+  ],
   "attachments": [],
-  "summary": {"url_count": 0, "attachment_count": 0, "signal_count": 2, "explanation": ["..."]}
+  "parse_defects": {}
 }
 ```
 
-The sample is abbreviated. Actual output retains message header context and URL flags. The authentication failure signal is produced only when its `authserv-id` is configured as trusted.
+The full report also includes decoded headers, ignored Authentication-Results headers with the reason each was ignored, normalized URLs, archive member lists, and analysis notes.
 
 ## Scoring
 
-Each triggered rule adds its configured weight. The total is capped at 100. Defaults classify scores below 25 as `low_risk`, 25 through 54 as `suspicious`, 55 through 79 as `likely_phishing`, and 80 or higher as `high_confidence_phishing`. Review the `signals` array for the evidence behind each score. A score is a triage aid, not a probability.
+Signals are grouped by rule. Each rule adds its weight once, no matter how many times it fired; the report still shows the count and up to five pieces of evidence. This keeps a newsletter with forty tracking links from scoring like forty findings. The total is capped at 100.
 
-Rules are in [`src/mail_sentry/default_rules.json`](src/mail_sentry/default_rules.json). Copy the file and adjust `weights`, `thresholds`, limits, brand domains, URL shorteners, suspicious TLDs, and risky attachment extensions. To score SPF, DKIM, and DMARC failures, set `trusted_authserv_ids` to mail systems whose Authentication-Results headers your environment trusts. The receiving mail system must strip or replace inbound Authentication-Results headers that claim one of these trusted IDs before adding its own result. The local allowlist alone cannot establish header provenance. You can also provide organization maintained domain metadata:
+Default verdicts: below 25 is `low_risk`, 25 to 54 is `suspicious`, 55 to 79 is `likely_phishing`, 80 and above is `high_confidence_phishing`. The score is a triage aid, not a probability. Check `signals` to see why a message scored the way it did.
+
+Weights, thresholds, limits, brand domains, shorteners, TLDs, and risky extensions live in [`src/mail_sentry/default_rules.json`](src/mail_sentry/default_rules.json). A custom rules file only needs the values you want to change; `weights`, `thresholds`, and `limits` are merged key by key with the defaults:
 
 ```json
 {
   "trusted_authserv_ids": ["mx.example.org"],
+  "trusted_receivers": ["gw1.example.org", "gw2.example.org"],
+  "weights": {"shortener": 4},
   "domain_hints": {
     "login.example.net": {"age_days": 5, "source": "internal inventory snapshot"}
   }
 }
 ```
 
-The age value is an operator supplied hint. Mail Sentry does not look up registration age itself. Run with the custom rules file using:
-
 ```powershell
 mail-sentry message.eml --rules .\tenant-rules.json --pretty
 ```
 
-Run the unit suite with:
+`domain_hints` is data you supply. Mail Sentry does not look up registration age, and the report labels the value as a local hint.
+
+## Authentication trust
+
+Anyone can write an `Authentication-Results` header into a message before sending it. Mail Sentry ignores them all unless you tell it which gateway to trust, and then it still checks where the header sits:
+
+1. The authserv-id must be in `trusted_authserv_ids`.
+2. The header must be inside the block written by your gateway. That block ends at the first `Received` header added by a host outside `trusted_receivers` (which defaults to the authserv IDs), counting from the topmost trusted hop. Anything below that point arrived with the message.
+3. Only the topmost header for each authserv-id is used.
+4. Comments such as `(spf=fail)` are stripped before results are read.
+
+Every header that was not used appears in `ignored_authentication_results` with a reason. This is a provenance check, not cryptographic validation. Your gateway should still strip inbound headers that claim its authserv-id.
+
+## Samples
+
+`samples/clean.eml`, `samples/suspicious.eml`, and `samples/phishing.eml` are an internal note, a delivery fee lure, and a credential harvester. With default rules they score 0 (`low_risk`), 35 (`suspicious`), and 100 (`high_confidence_phishing`). The authentication claims in the samples are not trusted by default, so they do not affect the scores. All sample domains use the reserved `.example` suffix.
+
+## Tests
 
 ```powershell
-py -m pip install .
-py -m unittest discover -s tests -v
+python -m pip install -e ".[msg]"
+python -m unittest discover -s tests -v
 ```
 
-## Sample set
+CI runs the suite on Ubuntu and Windows with Python 3.10 and 3.12.
 
-`samples/clean.eml`, `samples/suspicious.eml`, and `samples/phishing.eml` provide an ordinary internal note, a delivery fee lure, and a credential harvesting message. With the default rules, the clean note scores 0 (`low_risk`), the delivery lure scores 43 (`suspicious`), and the credential harvester scores 100 (`high_confidence_phishing`). Authentication results are not trusted by default, so the sample failure claims do not affect these scores. The reports explain findings through sender mismatches, urgency and payment language, URL characteristics, and a password form. Analyze each with the CLI to inspect the complete explanations. The fixture domains use the reserved `.example` suffix and do not point to live services.
-
-## Architecture
+## Layout
 
 ```text
-EML / optional MSG
-       |
- MIME parsing and attachment extraction
-       |
- header | body and HTML | URL | attachment analyzers
-       |
- weighted rules and threshold verdict
-       |
- structured JSON report
+EML / MSG
+   |
+parsing.py            MIME parsing, MSG normalization, part limits
+   |
+header_analysis.py    sender identity, authentication trust, Received chain
+body_analysis.py      HTML parser, hidden content, active content, lure text
+url_analysis.py       normalization, IP forms, homoglyphs, wrappers
+attachment_analysis.py  magic bytes, names, macros, bounded archive scan
+   |
+scoring.py            per rule weights and verdict
+   |
+JSON report (cli.py)
 ```
-
-The package separates orchestration from `parsing.py`, `header_analysis.py`, `body_analysis.py`, `url_analysis.py`, `attachment_analysis.py`, and `scoring.py`. `cli.py` handles command-line input and JSON output. The rules file holds tunable weights, trust settings, and resource limits. Message parsing uses Python's email package; MSG support normalizes common fields through `extract-msg`.
 
 ## Limitations
 
-* SPF, DKIM, and DMARC values are read only from configured trusted authentication servers and are not cryptographically validated by this program. The receiving mail system must remove inbound headers that impersonate a trusted authserv ID; otherwise forged values may pass the configured-name check.
-* URL destinations are never fetched. Common query based redirect wrappers are decoded offline into `redirect_destination` for inspection, but the actual final redirect destination is unknown. `domain_age` is populated only from local configuration hints. The tool deliberately avoids network access so analysts can inspect untrusted mail without contacting attacker infrastructure.
-* IDN, brand lookalike, Received chain, and entropy checks are heuristics. Basic domain suffix handling is not a full public suffix database.
-* Embedded URL extraction from arbitrary attachment bytes is opportunistic. Common Office XML and ZIP archives are inspected with bounded entry and expanded size limits. Encryption is detected for ZIP entries only. 7z, RAR, other formats, encrypted archives, nested archives, and malformed containers can hide content that static string inspection cannot recover.
-* `.msg` compatibility depends on the optional third party parser and may vary for unusual Outlook encodings.
-* No rule set can replace sandboxing, a mail gateway, or analyst review. Tune weights against the organization’s own benign traffic.
+* Authentication results are not validated cryptographically. The positional check depends on your gateway writing its own `Received` header and stripping forged results.
+* URLs are never fetched. Decoded wrapper targets show what a link names, not where an HTTP request would end up. Shortener targets are unknown.
+* The registrable domain logic uses a short list of common two label suffixes, not the full Public Suffix List.
+* Lookalike detection compares against the brands in `trusted_domains` only. The confusable table covers common Latin, Cyrillic, and Greek lookalikes, not all of Unicode.
+* Only ZIP based archives are opened. 7z, RAR (apart from RAR5 header encryption), CAB, ISO, and gzip are recorded but their contents are not inspected.
+* Attached `message/rfc822` emails have their bodies and attachments analyzed, but their headers are not scored.
+* Language rules are English only.
+* `.msg` support relies on `extract-msg`. Embedded MSG attachments and unusual Outlook encodings may not convert fully.
+* No rule set replaces sandboxing, a mail gateway, or analyst review. Tune the weights on your own benign mail before acting on scores.
 
 ## Safe handling
 
-Use an isolated analysis host and keep the analyzer offline when working with malicious samples. Do not open extracted links or attachments on a production workstation. Mail Sentry only reads the selected local file and writes the requested JSON report.
+Run it on an isolated analysis host. Do not open extracted links or attachments on a production workstation. Mail Sentry reads the input file and writes the JSON report; it does nothing else.
 
 ## License
 

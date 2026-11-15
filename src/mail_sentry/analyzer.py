@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import html
+from collections import Counter
 from pathlib import Path
 
 from .attachment_analysis import analyze_attachment
@@ -11,50 +11,79 @@ from .parsing import decode_text, iter_parts, parse_message
 from .scoring import score_signals
 from .url_analysis import analyze_urls
 
+SCHEMA_VERSION = "2.0"
+
 
 def analyze(path: Path, rules: dict | None = None) -> dict:
     rules = validate_rules(rules if rules is not None else load_rules())
-    message = parse_message(path, rules["limits"])
+    limits = rules["limits"]
+    message = parse_message(path, limits)
     header_data, signals = analyze_headers(message, rules)
     attachments = []
     plain_parts: list[str] = []
     html_parts: list[str] = []
-    for part in iter_parts(message, rules["limits"]["max_mime_parts"]):
+    defects: Counter[str] = Counter()
+    embedded_messages = 0
+    text_budget = int(limits["max_text_chars"])
+    text_truncated = False
+
+    for part in iter_parts(message, limits["max_mime_parts"]):
+        for defect in getattr(part, "defects", []):
+            defects[type(defect).__name__] += 1
+        content_type = part.get_content_type()
+        if content_type == "message/rfc822":
+            embedded_messages += 1
         if part.is_multipart():
             continue
-        filename = part.get_filename()
-        payload = part.get_payload(decode=True) or b""
-        if filename or part.get_content_disposition() == "attachment":
-            name = filename or "unnamed-attachment"
-            report, found_signals = analyze_attachment(name, part.get_content_type(), payload, rules)
+        try:
+            filename = part.get_filename()
+        except (ValueError, LookupError, TypeError):
+            filename = "undecodable-filename"
+        disposition = part.get_content_disposition()
+        maintype = part.get_content_maintype()
+        is_body_text = content_type in {"text/plain", "text/html"} and not filename and disposition != "attachment"
+        if not is_body_text and (filename or disposition == "attachment" or maintype not in {"text", "message", "multipart"}):
+            payload = part.get_payload(decode=True) or b""
+            report, found = analyze_attachment(filename or "unnamed-attachment", content_type, payload, rules)
             attachments.append(report)
-            signals.extend(found_signals)
+            signals.extend(found)
             continue
-        if part.get_content_type() == "text/html":
-            html_parts.append(decode_text(part))
-        elif part.get_content_type() == "text/plain":
-            plain_parts.append(decode_text(part))
+        if not is_body_text:
+            continue
+        text = decode_text(part)
+        if len(text) > text_budget:
+            text = text[:text_budget]
+            text_truncated = True
+        text_budget -= len(text)
+        (html_parts if content_type == "text/html" else plain_parts).append(text)
 
-    body_signals, body_links, body_text = analyze_body("\n".join(plain_parts), "\n".join(html_parts))
+    body_signals, links, body_text = analyze_body("\n".join(plain_parts), "\n".join(html_parts), header_data["subject"])
     signals.extend(body_signals)
-    links = [(html.unescape(url).strip(), context) for url, context in body_links]
     urls, url_signals = analyze_urls(links, body_text, rules)
     signals.extend(url_signals)
-    score, verdict, weighted_signals = score_signals(signals, rules)
+    score, verdict, weighted = score_signals(signals, rules)
+
+    notes = [
+        "Analysis is static and offline. No URL, DNS name, or reputation service was contacted.",
+        "wrapped_targets lists URLs decoded from wrapper link parameters. They show what a link names, not where an HTTP request would end up.",
+        "Authentication results are used only from trusted_authserv_ids inside the trusted receiving boundary; see ignored_authentication_results for the rest.",
+        "Domain age comes only from local domain_hints entries. It is not a registration lookup.",
+        "Archive scanning is bounded by entry count, expanded size, nesting depth, and compression ratio limits.",
+    ]
+    if text_truncated:
+        notes.append(f"Body text beyond {limits['max_text_chars']} characters was not analyzed.")
+    if embedded_messages:
+        notes.append(f"{embedded_messages} attached message(s) found. Their bodies and attachments were analyzed, but their headers were not.")
     return {
-        "schema_version": "1.1",
+        "schema_version": SCHEMA_VERSION,
         "source_file": path.name,
         "message": header_data,
         "verdict": verdict,
         "score": score,
-        "signals": weighted_signals,
+        "signals": weighted,
         "urls": urls,
         "attachments": attachments,
-        "summary": {"url_count": len(urls), "attachment_count": len(attachments), "signal_count": len(weighted_signals), "explanation": [s["detail"] for s in weighted_signals]},
-        "analysis_notes": [
-            "URL analysis is static. Redirect wrappers are decoded for inspection, but destinations are never contacted.",
-            "Authentication results are scored only when their authserv-id is listed in trusted_authserv_ids; all header claims can still be forged upstream.",
-            "Domain age is used only when supplied as a local domain_hints entry. DNS, registration, and reputation services are not queried.",
-            "Archive member scanning is bounded by configured entry count and expanded size limits.",
-        ],
+        "parse_defects": dict(defects),
+        "summary": {"url_count": len(urls), "attachment_count": len(attachments), "signal_count": len(weighted), "explanation": [s["detail"] for s in weighted if s["weight"]]},
+        "analysis_notes": notes,
     }

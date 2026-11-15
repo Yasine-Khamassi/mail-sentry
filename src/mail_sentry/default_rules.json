@@ -1,21 +1,36 @@
 {
   "thresholds": {"suspicious": 25, "likely_phishing": 55, "high_confidence": 80},
-  "limits": {"max_input_bytes": 25000000, "max_mime_parts": 500, "max_attachment_bytes": 15000000, "max_archive_entries": 500, "max_archive_uncompressed_bytes": 50000000, "max_nested_url_depth": 2},
+  "limits": {
+    "max_input_bytes": 25000000, "max_mime_parts": 500, "max_attachment_bytes": 15000000,
+    "max_archive_entries": 500, "max_archive_uncompressed_bytes": 50000000, "max_archive_depth": 2,
+    "max_compression_ratio": 100, "max_nested_url_depth": 2, "max_urls": 500, "max_text_chars": 5000000
+  },
   "trusted_authserv_ids": [],
+  "trusted_receivers": [],
   "domain_hints": {},
   "new_domain_days": 30,
   "weights": {
-    "auth_fail": 18, "sender_mismatch": 18, "reply_to_mismatch": 16,
+    "auth_fail": 18, "sender_mismatch": 10, "reply_to_mismatch": 16, "malformed_sender": 10,
+    "sender_lookalike": 22, "display_name_spoof": 14,
     "received_anomaly": 10, "mailer_anomaly": 6, "credential_form": 28,
-    "hidden_content": 10, "script_content": 18, "obfuscated_url": 12,
-    "punycode_domain": 16, "lookalike_domain": 20, "shortener": 8,
-    "ip_url": 16, "url_userinfo": 14, "suspicious_tld": 8,
-    "urgency_language": 8, "payment_lure": 9, "dangerous_attachment": 14,
-    "double_extension": 18, "macro_attachment": 16, "encrypted_archive": 12,
-    "high_entropy_attachment": 8, "embedded_attachment_url": 6, "new_domain": 12
+    "hidden_content": 10, "script_content": 18, "link_text_mismatch": 16, "data_uri_link": 18,
+    "obfuscated_url": 12, "punycode_domain": 16, "lookalike_domain": 20, "shortener": 8,
+    "ip_url": 16, "url_userinfo": 14, "suspicious_tld": 8, "new_domain": 12,
+    "urgency_language": 8, "payment_lure": 9,
+    "dangerous_attachment": 14, "double_extension": 18, "filename_spoofing": 20, "type_mismatch": 24,
+    "macro_attachment": 16, "html_attachment": 12, "encrypted_archive": 12, "archive_dangerous_member": 16,
+    "high_entropy_attachment": 8, "embedded_attachment_url": 6, "analysis_limit": 0
   },
-  "trusted_domains": ["microsoft.com", "google.com", "apple.com", "amazon.com", "paypal.com", "dhl.com", "fedex.com", "ups.com"],
-  "shortener_domains": ["bit.ly", "tinyurl.com", "t.co", "is.gd", "rb.gy", "cutt.ly", "ow.ly"],
-  "suspicious_tlds": ["zip", "mov", "click", "top", "xyz", "work", "country", "gq", "tk", "rest"],
-  "dangerous_extensions": [".exe", ".dll", ".scr", ".js", ".jse", ".vbs", ".vbe", ".hta", ".iso", ".img", ".lnk", ".bat", ".cmd", ".ps1", ".jar", ".com", ".msi", ".reg", ".chm"]
+  "trusted_domains": [
+    "microsoft.com", "microsoftonline.com", "office.com", "office365.com", "live.com", "outlook.com", "sharepoint.com",
+    "google.com", "gmail.com", "googleusercontent.com", "apple.com", "icloud.com",
+    "amazon.com", "amazon.co.uk", "amazon.de", "paypal.com", "dhl.com", "dhl.de", "fedex.com", "ups.com"
+  ],
+  "shortener_domains": ["bit.ly", "tinyurl.com", "t.co", "is.gd", "rb.gy", "cutt.ly", "ow.ly", "t.ly", "s.id", "shorturl.at", "rebrand.ly", "buff.ly"],
+  "suspicious_tlds": ["zip", "mov", "click", "top", "xyz", "work", "country", "gq", "tk", "ml", "cf", "ga", "rest", "cam", "sbs", "cfd"],
+  "dangerous_extensions": [
+    ".exe", ".dll", ".scr", ".pif", ".cpl", ".msc", ".js", ".jse", ".vbs", ".vbe", ".wsf", ".wsh", ".hta",
+    ".iso", ".img", ".vhd", ".vhdx", ".lnk", ".url", ".bat", ".cmd", ".ps1", ".jar", ".com", ".msi", ".msix",
+    ".appx", ".reg", ".chm", ".one", ".xll", ".scf", ".application", ".appref-ms"
+  ]
 }

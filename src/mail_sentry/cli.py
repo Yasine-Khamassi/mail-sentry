@@ -26,11 +26,20 @@ def main() -> int:
         if args.output:
             Path(args.output).write_text(rendered, encoding="utf-8")
         else:
+            # Reports carry decoded Unicode subjects and names. Do not depend
+            # on the console code page, which is often not UTF-8 on Windows.
+            if hasattr(sys.stdout, "reconfigure"):
+                sys.stdout.reconfigure(encoding="utf-8")
             sys.stdout.write(rendered)
         return 0
     except (OSError, ValueError) as exc:
         print(f"mail-sentry: {exc}", file=sys.stderr)
         return 2
+    except (RecursionError, MemoryError, LookupError, TypeError, AttributeError, IndexError) as exc:
+        # Hostile input can reach corners of the email package that raise
+        # unexpected errors. Report it as an analysis failure, not a traceback.
+        print(f"mail-sentry: could not analyze {args.input}: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 3
 
 
 if __name__ == "__main__":
