@@ -311,7 +311,8 @@ def evaluate_dmarc(message: Message, dkim_report: dict, spf_report: dict, resolv
         report["result"] = "temperror"
     elif record_known_absent:
         report["result"] = "none"
-        report["errors"].append(f"no DMARC record for {from_domain} or {registrable_hint(from_domain)}")
+        searched = " or ".join(dict.fromkeys((from_domain, registrable_hint(from_domain))))
+        report["errors"].append(f"no DMARC record for {searched}")
     elif alignment["dkim"] or alignment["spf"]:
         report["result"] = "pass"
     elif "temperror" in {dkim_result, spf_result}:
