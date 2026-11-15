@@ -1,0 +1,23 @@
+From: Priya Shah <priya@northwind.example>
+To: Alex Morgan <alex@northwind.example>
+Date: Mon, 09 Nov 2026 09:15:00 +0000
+Subject: Friday project notes
+Message-ID: <notes-20261109@northwind.example>
+Authentication-Results: mx.northwind.example; spf=pass; dkim=pass; dmarc=pass
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="clean"
+
+--clean
+Content-Type: text/plain; charset="utf-8"
+
+Hi Alex,
+
+I attached the notes from Friday's review. Please add comments before our next meeting.
+
+Thanks,
+Priya
+--clean
+Content-Type: text/html; charset="utf-8"
+
+<p>Hi Alex,</p><p>I attached the notes from Friday's review. Please add comments before our next meeting.</p><p>Thanks,<br>Priya</p>
+--clean--

