@@ -72,9 +72,9 @@ class URLTests(unittest.TestCase):
     def test_nested_redirect_wrapper_is_decoded_without_fetching(self):
         rules = load_rules()
         result, signals = analyze_urls([("https://relay.example/go?url=https%3A%2F%2Fbad.example%2Flogin", "anchor")], "", rules)
-        self.assertEqual(result[0]["redirect_destination"], "https://bad.example/login")
-        self.assertIn("redirect wrapper contains nested URL", result[0]["flags"])
-        self.assertEqual(result[1]["context"], "redirect_target")
+        self.assertEqual(result[0]["wrapped_targets"], ["https://bad.example/login"])
+        self.assertIn("wrapper link names another URL", result[0]["flags"])
+        self.assertEqual(result[1]["context"], "wrapped_target")
         self.assertFalse(any("redirect" in signal["rule"] for signal in signals))
 
     def test_local_domain_age_hints_add_explainable_signal(self):
