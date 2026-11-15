@@ -12,6 +12,7 @@ dependencies = []
 [project.optional-dependencies]
 msg = ["extract-msg>=0.48"]
 auth = ["dkimpy>=1.1", "pyspf>=2.0.14", "dnspython>=2.4"]
+lang = ["langdetect>=1.0.9"]
 archives = ["py7zr>=1.0", "cabarchive>=0.2.4", "pycdlib>=1.14", "rarfile>=4.1"]
 
 [project.scripts]
@@ -21,4 +22,4 @@ mail-sentry = "mail_sentry.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-mail_sentry = ["default_rules.json"]
+mail_sentry = ["default_rules.json", "lures/*.json"]

@@ -1,0 +1,9 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: 紧急通知：您的账户已被冻结
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: zh-CN
+
+尊敬的用户，您的账户已被冻结。请在24小时内验证您的账户，并重置密码以恢复正常使用。如不处理，账户将被永久关闭。

@@ -68,7 +68,9 @@ def analyze(path: Path, rules: dict | None = None, *, resolver=None, check_spf: 
         text_budget -= len(text)
         (html_parts if content_type == "text/html" else plain_parts).append(text)
 
-    body_signals, links, body_text = analyze_body("\n".join(plain_parts), "\n".join(html_parts), header_data["subject"])
+    body_details: dict = {}
+    content_language = str(message.get("Content-Language", "") or "")
+    body_signals, links, body_text = analyze_body("\n".join(plain_parts), "\n".join(html_parts), header_data["subject"], content_language, body_details)
     signals.extend(body_signals)
     urls, url_signals = analyze_urls(links, body_text, rules)
     signals.extend(url_signals)
@@ -95,6 +97,7 @@ def analyze(path: Path, rules: dict | None = None, *, resolver=None, check_spf: 
         "source_file": path.name,
         "message": header_data,
         "auth": auth,
+        "language": body_details.get("language"),
         "verdict": verdict,
         "score": score,
         "signals": weighted,

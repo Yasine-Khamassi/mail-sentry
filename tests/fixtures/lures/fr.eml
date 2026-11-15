@@ -1,0 +1,9 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: Dernier avertissement concernant votre compte
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: fr-FR
+
+Bonjour, votre compte sera suspendu dans les 24 heures. Vous devez réinitialiser votre mot de passe immédiatement pour conserver l'accès à vos services. Merci de votre confiance.

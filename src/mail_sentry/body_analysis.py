@@ -3,12 +3,9 @@ from __future__ import annotations
 import re
 from html.parser import HTMLParser
 
+from .lure_language import scan_lures
 from .url_analysis import BIDI_CONTROLS, clean_url, normalize_url, registrable_hint
 
-SUSPICIOUS_LANG = {
-    "urgency_language": re.compile(r"(?i)\b(?:immediately|urgent|within\s+\d+\s+hours?|act now|final notice|account.{0,20}(?:suspend|locked|close)|verify.{0,20}(?:account|identity)|unusual sign.?in)\b"),
-    "payment_lure": re.compile(r"(?i)\b(?:invoice overdue|payment failed|wire transfer|bank details|gift card|pay now|refund pending|delivery fee|customs fee|package held)\b"),
-}
 # Invisible characters wedged between letters split keywords so filters miss
 # them ("Pa<U+200B>yPal"). A lone character elsewhere is common in templates.
 IN_WORD_INVISIBLE = re.compile(r"(?<=\w)[\u200b\u2060-\u2064\ufeff]+(?=\w)")
@@ -159,18 +156,21 @@ def _link_text_mismatches(pairs: list[tuple[str, str]]) -> list[str]:
     return found
 
 
-def analyze_body(plain: str, html_text: str, subject: str = "") -> tuple[list[dict], list[tuple[str, str]], str]:
-    """Return (signals, html links with context, text for URL extraction)."""
+def analyze_body(plain: str, html_text: str, subject: str = "", content_language: str = "", details: dict | None = None) -> tuple[list[dict], list[tuple[str, str]], str]:
+    """Return (signals, html links with context, text for URL extraction).
+
+    When ``details`` is a dict, the language report is stored in
+    ``details["language"]``.
+    """
     inspector = inspect_html(html_text) if html_text else HtmlInspector()
     visible = " ".join(inspector.visible_text)
     hidden = " ".join(inspector.hidden_text)
     signals: list[dict] = []
 
-    language_text = f"{subject}\n{plain}\n{visible}"
-    for key, pattern in SUSPICIOUS_LANG.items():
-        match = pattern.search(language_text)
-        if match:
-            signals.append({"rule": key, "detail": "Message uses language commonly seen in credential or payment lures", "evidence": match.group(0)})
+    lure_signals, language = scan_lures(f"{subject}\n{plain}\n{visible}", content_language)
+    signals.extend(lure_signals)
+    if details is not None:
+        details["language"] = language
 
     if inspector.password_inputs:
         if inspector.forms:

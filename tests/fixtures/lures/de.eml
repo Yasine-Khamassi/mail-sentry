@@ -1,0 +1,9 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: Zahlungserinnerung
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: de
+
+Sehr geehrte Kundin, sehr geehrter Kunde, die Zahlung ist fehlgeschlagen und die offene Rechnung ist noch nicht beglichen. Bitte aktualisieren Sie Ihre Zahlungsinformationen, sonst wird Ihr Konto gesperrt.

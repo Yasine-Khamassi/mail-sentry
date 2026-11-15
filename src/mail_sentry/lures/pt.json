@@ -1,0 +1,75 @@
+{
+  "language": "pt",
+  "name": "Portuguese",
+  "word_boundaries": true,
+  "fold_accents": true,
+  "stopwords": ["o", "os", "as", "do", "da", "dos", "é", "você", "seu", "sua", "para", "com", "uma", "não", "por", "obrigado", "nosso"],
+  "categories": {
+    "urgency": [
+      {"term": "imediatamente", "weight": 2},
+      {"term": "último aviso", "weight": 2},
+      {"pattern": "nas proximas \\d+ horas", "weight": 2},
+      {"term": "ação necessária", "weight": 2},
+      {"pattern": "conta (?:foi |sera |esta )?(?:suspensa|bloqueada|encerrada|desativada)", "weight": 2},
+      {"term": "verifique sua conta", "weight": 2},
+      {"term": "verifique a sua conta", "weight": 2},
+      {"term": "acesso incomum", "weight": 2},
+      {"term": "urgente", "weight": 1}
+    ],
+    "financial": [
+      {"term": "transferência bancária", "weight": 2},
+      {"term": "dados bancários", "weight": 2},
+      {"term": "cartão presente", "weight": 2},
+      {"term": "reembolso pendente", "weight": 2},
+      {"term": "dados de pagamento", "weight": 2},
+      {"term": "cartão de crédito", "weight": 1},
+      {"term": "pix", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "fatura em atraso", "weight": 2},
+      {"term": "fatura vencida", "weight": 2},
+      {"term": "pagamento recusado", "weight": 2},
+      {"term": "falha no pagamento", "weight": 2},
+      {"term": "pague agora", "weight": 2},
+      {"term": "taxa de entrega", "weight": 2},
+      {"term": "taxa alfandegária", "weight": 2},
+      {"term": "boleto", "weight": 1},
+      {"term": "fatura", "weight": 1}
+    ],
+    "credential_reset": [
+      {"pattern": "redefinir (?:a )?sua senha", "weight": 2},
+      {"pattern": "senha (?:expira|ira expirar|vai expirar)", "weight": 2},
+      {"term": "confirme sua senha", "weight": 2},
+      {"term": "caixa de correio cheia", "weight": 2},
+      {"term": "senha", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "encomenda retida", "weight": 2},
+      {"term": "pacote retido", "weight": 2},
+      {"term": "entrega falhou", "weight": 2},
+      {"term": "tentativa de entrega", "weight": 2},
+      {"term": "reagendar a entrega", "weight": 2},
+      {"term": "sua encomenda", "weight": 1},
+      {"term": "seu pacote", "weight": 1},
+      {"term": "código de rastreio", "weight": 1},
+      {"term": "código de rastreamento", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "você ganhou", "weight": 2},
+      {"term": "loteria", "weight": 2},
+      {"term": "resgate seu prêmio", "weight": 2},
+      {"term": "parabéns", "weight": 1},
+      {"term": "vencedor", "weight": 1},
+      {"term": "sorteio", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "receita federal", "weight": 2},
+      {"term": "restituição de imposto", "weight": 2},
+      {"term": "ordem judicial", "weight": 2},
+      {"term": "ação judicial", "weight": 2},
+      {"term": "intimação", "weight": 2},
+      {"term": "polícia", "weight": 1},
+      {"term": "multa", "weight": 1}
+    ]
+  }
+}

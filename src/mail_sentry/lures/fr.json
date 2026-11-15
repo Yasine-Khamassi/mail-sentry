@@ -1,0 +1,77 @@
+{
+  "language": "fr",
+  "name": "French",
+  "word_boundaries": true,
+  "fold_accents": true,
+  "stopwords": ["le", "la", "les", "des", "est", "vous", "votre", "vos", "pour", "avec", "une", "nous", "dans", "sur", "pas", "que", "qui"],
+  "categories": {
+    "urgency": [
+      {"term": "immédiatement", "weight": 2},
+      {"term": "dernier avertissement", "weight": 2},
+      {"term": "dernier rappel", "weight": 2},
+      {"pattern": "dans les \\d+ heures", "weight": 2},
+      {"term": "action requise", "weight": 2},
+      {"pattern": "compte (?:sera |a ete |est )?(?:suspendu|bloque|desactive|ferme)", "weight": 2},
+      {"term": "vérifiez votre compte", "weight": 2},
+      {"term": "connexion inhabituelle", "weight": 2},
+      {"term": "sans délai", "weight": 1},
+      {"term": "urgent", "weight": 1}
+    ],
+    "financial": [
+      {"term": "virement bancaire", "weight": 2},
+      {"term": "coordonnées bancaires", "weight": 2},
+      {"term": "carte cadeau", "weight": 2},
+      {"term": "remboursement en attente", "weight": 2},
+      {"term": "informations de paiement", "weight": 2},
+      {"term": "informations bancaires", "weight": 2},
+      {"term": "carte bancaire", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "facture impayée", "weight": 2},
+      {"term": "facture en retard", "weight": 2},
+      {"term": "paiement refusé", "weight": 2},
+      {"term": "échec du paiement", "weight": 2},
+      {"term": "payer maintenant", "weight": 2},
+      {"term": "frais de livraison", "weight": 2},
+      {"term": "frais de douane", "weight": 2},
+      {"term": "facture", "weight": 1},
+      {"term": "règlement", "weight": 1}
+    ],
+    "credential_reset": [
+      {"pattern": "reinitialise[rz]? votre mot de passe", "weight": 2},
+      {"term": "votre mot de passe expire", "weight": 2},
+      {"term": "confirmez votre mot de passe", "weight": 2},
+      {"term": "boîte aux lettres pleine", "weight": 2},
+      {"term": "mot de passe", "weight": 1},
+      {"term": "identifiants", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "colis en attente", "weight": 2},
+      {"term": "colis bloqué", "weight": 2},
+      {"term": "livraison échouée", "weight": 2},
+      {"term": "échec de livraison", "weight": 2},
+      {"term": "tentative de livraison", "weight": 2},
+      {"term": "reprogrammer la livraison", "weight": 2},
+      {"term": "votre colis", "weight": 1},
+      {"term": "numéro de suivi", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "vous avez gagné", "weight": 2},
+      {"term": "loterie", "weight": 2},
+      {"term": "réclamez votre prix", "weight": 2},
+      {"term": "tirage au sort", "weight": 2},
+      {"term": "gagnant", "weight": 1},
+      {"term": "félicitations", "weight": 1},
+      {"term": "cadeau gratuit", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "remboursement d'impôt", "weight": 2},
+      {"term": "administration fiscale", "weight": 2},
+      {"term": "police nationale", "weight": 2},
+      {"term": "poursuites judiciaires", "weight": 2},
+      {"term": "gendarmerie", "weight": 1},
+      {"term": "convocation", "weight": 1},
+      {"term": "amende", "weight": 1}
+    ]
+  }
+}

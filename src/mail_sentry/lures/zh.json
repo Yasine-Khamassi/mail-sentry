@@ -1,0 +1,68 @@
+{
+  "language": "zh",
+  "name": "Chinese (Simplified)",
+  "word_boundaries": false,
+  "fold_accents": false,
+  "stopwords": [],
+  "categories": {
+    "urgency": [
+      {"term": "紧急", "weight": 2},
+      {"term": "最后通知", "weight": 2},
+      {"pattern": "\\d+\\s*小时内", "weight": 2},
+      {"pattern": "(?:账户|帐户|账号)(?:已|将)?被?(?:冻结|停用|锁定|关闭)", "weight": 2},
+      {"term": "验证您的账户", "weight": 2},
+      {"term": "异常登录", "weight": 2},
+      {"term": "立即", "weight": 1},
+      {"term": "立刻", "weight": 1}
+    ],
+    "financial": [
+      {"term": "银行转账", "weight": 2},
+      {"term": "银行账户信息", "weight": 2},
+      {"term": "礼品卡", "weight": 2},
+      {"term": "更新付款信息", "weight": 2},
+      {"term": "退款", "weight": 1},
+      {"term": "汇款", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "发票逾期", "weight": 2},
+      {"term": "付款失败", "weight": 2},
+      {"term": "立即付款", "weight": 2},
+      {"term": "未付发票", "weight": 2},
+      {"term": "发票", "weight": 1},
+      {"term": "运费", "weight": 1},
+      {"term": "关税", "weight": 1}
+    ],
+    "credential_reset": [
+      {"term": "重置密码", "weight": 2},
+      {"term": "密码即将过期", "weight": 2},
+      {"term": "密码已过期", "weight": 2},
+      {"term": "确认您的密码", "weight": 2},
+      {"term": "邮箱已满", "weight": 2},
+      {"term": "密码", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "包裹被扣留", "weight": 2},
+      {"term": "派送失败", "weight": 2},
+      {"term": "投递失败", "weight": 2},
+      {"term": "重新安排派送", "weight": 2},
+      {"term": "您的包裹", "weight": 1},
+      {"term": "运单号", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "恭喜您中奖", "weight": 2},
+      {"term": "中奖", "weight": 2},
+      {"term": "领取奖品", "weight": 2},
+      {"term": "彩票", "weight": 1},
+      {"term": "幸运用户", "weight": 1},
+      {"term": "大奖", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "税务局", "weight": 2},
+      {"term": "退税", "weight": 2},
+      {"term": "公安局", "weight": 2},
+      {"term": "法院传票", "weight": 2},
+      {"term": "法律诉讼", "weight": 2},
+      {"term": "罚款", "weight": 1}
+    ]
+  }
+}

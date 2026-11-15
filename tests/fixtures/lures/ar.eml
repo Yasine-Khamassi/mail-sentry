@@ -1,0 +1,9 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: إشعار نهائي بخصوص حسابك
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: ar
+
+عزيزي العميل، سيتم إيقاف حسابك خلال 24 ساعة. يرجى تحديث معلومات الدفع وإعادة تعيين كلمة المرور فوراً لتجنب تعليق الخدمة. شكراً لتعاونكم.

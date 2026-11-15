@@ -16,7 +16,7 @@
     "hidden_content": 10, "script_content": 18, "link_text_mismatch": 16, "data_uri_link": 18,
     "obfuscated_url": 12, "punycode_domain": 16, "lookalike_domain": 20, "shortener": 8,
     "ip_url": 16, "url_userinfo": 14, "suspicious_tld": 8, "new_domain": 12,
-    "urgency_language": 8, "payment_lure": 9,
+    "urgency_language": 8, "payment_lure": 9, "credential_lure": 10, "delivery_lure": 8, "prize_lure": 10, "authority_lure": 8,
     "dangerous_attachment": 14, "double_extension": 18, "filename_spoofing": 20, "type_mismatch": 24,
     "macro_attachment": 16, "html_attachment": 12, "encrypted_archive": 12, "archive_dangerous_member": 16,
     "high_entropy_attachment": 8, "embedded_attachment_url": 6, "analysis_limit": 0

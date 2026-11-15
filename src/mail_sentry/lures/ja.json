@@ -1,0 +1,72 @@
+{
+  "language": "ja",
+  "name": "Japanese",
+  "word_boundaries": false,
+  "fold_accents": false,
+  "stopwords": [],
+  "categories": {
+    "urgency": [
+      {"term": "至急", "weight": 2},
+      {"term": "緊急", "weight": 2},
+      {"term": "最終通知", "weight": 2},
+      {"pattern": "\\d+\\s*時間以内", "weight": 2},
+      {"pattern": "アカウント(?:が|は|を)?(?:停止|凍結|ロック|制限)", "weight": 2},
+      {"term": "アカウントを確認", "weight": 2},
+      {"term": "不正ログイン", "weight": 2},
+      {"term": "直ちに", "weight": 1},
+      {"term": "ただちに", "weight": 1},
+      {"term": "本人確認", "weight": 1}
+    ],
+    "financial": [
+      {"term": "銀行振込", "weight": 2},
+      {"term": "口座情報", "weight": 2},
+      {"term": "ギフトカード", "weight": 2},
+      {"term": "お支払い情報を更新", "weight": 2},
+      {"term": "支払い情報の更新", "weight": 2},
+      {"term": "返金", "weight": 1},
+      {"term": "クレジットカード", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "未払い", "weight": 2},
+      {"term": "支払いが失敗", "weight": 2},
+      {"term": "お支払いに失敗", "weight": 2},
+      {"term": "今すぐお支払い", "weight": 2},
+      {"term": "請求書", "weight": 1},
+      {"term": "配送料", "weight": 1},
+      {"term": "関税", "weight": 1}
+    ],
+    "credential_reset": [
+      {"term": "パスワードをリセット", "weight": 2},
+      {"term": "パスワードの再設定", "weight": 2},
+      {"term": "パスワードの有効期限", "weight": 2},
+      {"term": "パスワードを確認", "weight": 2},
+      {"term": "メールボックスがいっぱい", "weight": 2},
+      {"term": "パスワード", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "不在通知", "weight": 2},
+      {"term": "配達できませんでした", "weight": 2},
+      {"term": "再配達", "weight": 2},
+      {"term": "荷物が保管", "weight": 2},
+      {"term": "お荷物", "weight": 1},
+      {"term": "追跡番号", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "当選", "weight": 2},
+      {"term": "宝くじ", "weight": 2},
+      {"term": "賞金を受け取", "weight": 2},
+      {"term": "おめでとうございます", "weight": 1},
+      {"term": "賞品", "weight": 1},
+      {"term": "抽選", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "税務署", "weight": 2},
+      {"term": "国税庁", "weight": 2},
+      {"term": "還付金", "weight": 2},
+      {"term": "裁判所", "weight": 2},
+      {"term": "法的措置", "weight": 2},
+      {"term": "警察", "weight": 1},
+      {"term": "罰金", "weight": 1}
+    ]
+  }
+}

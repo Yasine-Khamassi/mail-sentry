@@ -1,0 +1,9 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: 【重要】アカウント停止のお知らせ
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: ja
+
+お客様のアカウントが停止されました。24時間以内にアカウントを確認し、パスワードの再設定を行ってください。ご協力をお願いいたします。

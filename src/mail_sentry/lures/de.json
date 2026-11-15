@@ -1,0 +1,76 @@
+{
+  "language": "de",
+  "name": "German",
+  "word_boundaries": true,
+  "fold_accents": true,
+  "stopwords": ["der", "die", "das", "und", "ist", "sie", "ihr", "ihre", "nicht", "mit", "für", "ein", "eine", "wir", "bitte", "zu", "den"],
+  "categories": {
+    "urgency": [
+      {"term": "dringend", "weight": 2},
+      {"term": "letzte mahnung", "weight": 2},
+      {"pattern": "innerhalb von \\d+ stunden", "weight": 2},
+      {"term": "handeln sie jetzt", "weight": 2},
+      {"pattern": "konto (?:wurde |wird )?(?:gesperrt|eingeschrankt|deaktiviert|geschlossen)", "weight": 2},
+      {"term": "bestätigen sie ihr konto", "weight": 2},
+      {"term": "ungewöhnliche anmeldung", "weight": 2},
+      {"term": "sofort", "weight": 1},
+      {"term": "umgehend", "weight": 1}
+    ],
+    "financial": [
+      {"term": "bankverbindung", "weight": 2},
+      {"term": "bankdaten", "weight": 2},
+      {"term": "geschenkkarte", "weight": 2},
+      {"term": "gutscheinkarte", "weight": 2},
+      {"term": "zahlungsinformationen", "weight": 2},
+      {"term": "überweisung", "weight": 1},
+      {"term": "rückerstattung", "weight": 1},
+      {"term": "kreditkarte", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "offene rechnung", "weight": 2},
+      {"term": "zahlungserinnerung", "weight": 2},
+      {"term": "zahlung fehlgeschlagen", "weight": 2},
+      {"term": "jetzt bezahlen", "weight": 2},
+      {"term": "zustellgebühr", "weight": 2},
+      {"term": "zollgebühr", "weight": 2},
+      {"term": "rechnung", "weight": 1},
+      {"term": "mahnung", "weight": 1}
+    ],
+    "credential_reset": [
+      {"term": "passwort zurücksetzen", "weight": 2},
+      {"term": "kennwort zurücksetzen", "weight": 2},
+      {"pattern": "(?:passwort|kennwort) lauft ab", "weight": 2},
+      {"term": "passwort bestätigen", "weight": 2},
+      {"term": "postfach voll", "weight": 2},
+      {"term": "passwort", "weight": 1},
+      {"term": "kennwort", "weight": 1},
+      {"term": "zugangsdaten", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "paket wartet", "weight": 2},
+      {"term": "zustellung fehlgeschlagen", "weight": 2},
+      {"term": "zustellversuch", "weight": 2},
+      {"term": "sendung zurückgehalten", "weight": 2},
+      {"term": "ihr paket", "weight": 1},
+      {"term": "sendungsnummer", "weight": 1},
+      {"term": "sendungsverfolgung", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "sie haben gewonnen", "weight": 2},
+      {"term": "lotterie", "weight": 2},
+      {"term": "preis abholen", "weight": 2},
+      {"term": "gewinner", "weight": 1},
+      {"term": "gewinnspiel", "weight": 1},
+      {"term": "herzlichen glückwunsch", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "steuerrückerstattung", "weight": 2},
+      {"term": "bundeszentralamt für steuern", "weight": 2},
+      {"term": "gerichtsbeschluss", "weight": 2},
+      {"term": "rechtliche schritte", "weight": 2},
+      {"term": "haftbefehl", "weight": 2},
+      {"term": "finanzamt", "weight": 1},
+      {"term": "polizei", "weight": 1}
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "language": "en",
+  "name": "English",
+  "word_boundaries": true,
+  "fold_accents": false,
+  "stopwords": ["the", "and", "you", "your", "to", "of", "is", "for", "please", "this", "that", "with", "have", "are", "we", "our", "will"],
+  "categories": {
+    "urgency": [
+      {"term": "immediately", "weight": 2},
+      {"term": "urgent", "weight": 2},
+      {"pattern": "within\\s+\\d+\\s+hours?", "weight": 2},
+      {"term": "act now", "weight": 2},
+      {"term": "final notice", "weight": 2},
+      {"pattern": "account.{0,20}(?:suspend|locked|close)", "weight": 2},
+      {"pattern": "verify.{0,20}(?:account|identity)", "weight": 2},
+      {"pattern": "unusual sign.?in", "weight": 2},
+      {"term": "last warning", "weight": 2},
+      {"term": "action required", "weight": 1},
+      {"term": "expires today", "weight": 1}
+    ],
+    "financial": [
+      {"term": "wire transfer", "weight": 2},
+      {"term": "bank details", "weight": 2},
+      {"term": "gift card", "weight": 2},
+      {"term": "refund pending", "weight": 2},
+      {"term": "update your payment", "weight": 2},
+      {"term": "payment information", "weight": 1},
+      {"term": "crypto wallet", "weight": 1},
+      {"term": "bitcoin", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "invoice overdue", "weight": 2},
+      {"term": "payment failed", "weight": 2},
+      {"term": "pay now", "weight": 2},
+      {"term": "delivery fee", "weight": 2},
+      {"term": "customs fee", "weight": 2},
+      {"term": "outstanding invoice", "weight": 2},
+      {"term": "past due", "weight": 1},
+      {"term": "remittance", "weight": 1},
+      {"term": "invoice", "weight": 1}
+    ],
+    "credential_reset": [
+      {"term": "reset your password", "weight": 2},
+      {"pattern": "password (?:will )?expires?", "weight": 2},
+      {"term": "confirm your password", "weight": 2},
+      {"term": "update your credentials", "weight": 2},
+      {"pattern": "mailbox (?:is )?(?:full|over quota)", "weight": 2},
+      {"term": "sign in to restore", "weight": 2},
+      {"term": "password", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "package held", "weight": 2},
+      {"pattern": "(?:package|parcel|shipment) (?:is |was |has been )?(?:held|on hold|undeliverable|returned)", "weight": 2},
+      {"term": "delivery attempt", "weight": 2},
+      {"term": "failed delivery", "weight": 2},
+      {"term": "reschedule delivery", "weight": 2},
+      {"term": "tracking number", "weight": 1},
+      {"term": "your package", "weight": 1},
+      {"term": "your parcel", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "you have won", "weight": 2},
+      {"term": "you've won", "weight": 2},
+      {"term": "lottery", "weight": 2},
+      {"term": "claim your prize", "weight": 2},
+      {"term": "jackpot", "weight": 2},
+      {"term": "selected to receive", "weight": 2},
+      {"term": "winner", "weight": 1},
+      {"term": "congratulations", "weight": 1},
+      {"term": "reward", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "tax refund", "weight": 2},
+      {"term": "internal revenue service", "weight": 2},
+      {"term": "court order", "weight": 2},
+      {"term": "legal action", "weight": 2},
+      {"term": "law enforcement", "weight": 2},
+      {"term": "arrest warrant", "weight": 2},
+      {"term": "police", "weight": 1},
+      {"term": "government", "weight": 1}
+    ]
+  }
+}

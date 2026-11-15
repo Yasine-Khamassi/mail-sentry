@@ -1,0 +1,8 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: Aviso importante sobre su paquete
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Estimado cliente, su paquete retenido no pudo ser entregado. Tras un intento de entrega fallido, pague los gastos de envío para reprogramar la entrega. Gracias por su confianza en nuestro servicio.

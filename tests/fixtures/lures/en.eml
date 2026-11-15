@@ -1,0 +1,9 @@
+From: Notice <notice@lure-test.example>
+To: Alex <alex@northwind.example>
+Subject: Final notice: your parcel is on hold
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: en
+
+Your package is held at our depot after a failed delivery. Pay the customs fee within 24 hours or it will be returned.

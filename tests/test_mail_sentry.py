@@ -137,7 +137,7 @@ class AttachmentTests(unittest.TestCase):
 class EndToEndTests(unittest.TestCase):
     def test_samples_have_expected_default_verdicts(self):
         rules = load_rules()
-        expected = {"clean.eml": (0, "low_risk"), "suspicious.eml": (35, "suspicious"), "phishing.eml": (100, "high_confidence_phishing")}
+        expected = {"clean.eml": (0, "low_risk"), "suspicious.eml": (43, "suspicious"), "phishing.eml": (100, "high_confidence_phishing")}
         for name, verdict in expected.items():
             with self.subTest(name=name):
                 result = analyze(ROOT / "samples" / name, rules)

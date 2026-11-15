@@ -1,0 +1,77 @@
+{
+  "language": "ar",
+  "name": "Arabic",
+  "word_boundaries": false,
+  "fold_accents": false,
+  "stopwords": [],
+  "categories": {
+    "urgency": [
+      {"term": "عاجل", "weight": 2},
+      {"term": "إشعار نهائي", "weight": 2},
+      {"term": "تحذير أخير", "weight": 2},
+      {"pattern": "خلال \\d+ ساع", "weight": 2},
+      {"term": "سيتم إيقاف حسابك", "weight": 2},
+      {"term": "تم تعليق حسابك", "weight": 2},
+      {"term": "سيتم تعطيل حسابك", "weight": 2},
+      {"term": "تحقق من حسابك", "weight": 2},
+      {"term": "تسجيل دخول غير معتاد", "weight": 2},
+      {"term": "فورا", "weight": 1},
+      {"term": "على الفور", "weight": 1}
+    ],
+    "financial": [
+      {"term": "تحويل بنكي", "weight": 2},
+      {"term": "حوالة مصرفية", "weight": 2},
+      {"term": "بيانات بطاقتك", "weight": 2},
+      {"term": "تفاصيل الحساب البنكي", "weight": 2},
+      {"term": "بطاقة هدايا", "weight": 2},
+      {"term": "تحديث معلومات الدفع", "weight": 2},
+      {"term": "استرداد المبلغ", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "فاتورة متأخرة", "weight": 2},
+      {"term": "فاتورة مستحقة", "weight": 2},
+      {"term": "فشل الدفع", "weight": 2},
+      {"term": "ادفع الآن", "weight": 2},
+      {"term": "رسوم التوصيل", "weight": 2},
+      {"term": "رسوم الجمارك", "weight": 2},
+      {"term": "رسوم جمركية", "weight": 2},
+      {"term": "فاتورة", "weight": 1}
+    ],
+    "credential_reset": [
+      {"term": "إعادة تعيين كلمة المرور", "weight": 2},
+      {"term": "انتهاء صلاحية كلمة المرور", "weight": 2},
+      {"term": "ستنتهي صلاحية كلمة المرور", "weight": 2},
+      {"term": "تأكيد كلمة المرور", "weight": 2},
+      {"term": "صندوق البريد ممتلئ", "weight": 2},
+      {"term": "كلمة المرور", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "شحنتك معلقة", "weight": 2},
+      {"term": "تعذر توصيل", "weight": 2},
+      {"term": "فشل التوصيل", "weight": 2},
+      {"term": "إعادة جدولة التوصيل", "weight": 2},
+      {"term": "طردك", "weight": 1},
+      {"term": "شحنتك", "weight": 1},
+      {"term": "رقم التتبع", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "لقد فزت", "weight": 2},
+      {"term": "يانصيب", "weight": 2},
+      {"term": "استلم جائزتك", "weight": 2},
+      {"term": "مبروك", "weight": 1},
+      {"term": "تهانينا", "weight": 1},
+      {"term": "الفائز", "weight": 1},
+      {"term": "جائزة", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "وزارة الداخلية", "weight": 2},
+      {"term": "مصلحة الضرائب", "weight": 2},
+      {"term": "استرداد ضريبي", "weight": 2},
+      {"term": "أمر قضائي", "weight": 2},
+      {"term": "إجراءات قانونية", "weight": 2},
+      {"term": "النيابة العامة", "weight": 2},
+      {"term": "الشرطة", "weight": 1},
+      {"term": "غرامة", "weight": 1}
+    ]
+  }
+}

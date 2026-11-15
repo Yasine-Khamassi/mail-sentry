@@ -1,0 +1,72 @@
+{
+  "language": "es",
+  "name": "Spanish",
+  "word_boundaries": true,
+  "fold_accents": true,
+  "stopwords": ["el", "los", "las", "del", "es", "su", "sus", "para", "con", "una", "por", "que", "usted", "tu", "nuestro", "está", "gracias"],
+  "categories": {
+    "urgency": [
+      {"term": "inmediatamente", "weight": 2},
+      {"term": "último aviso", "weight": 2},
+      {"pattern": "en las proximas \\d+ horas", "weight": 2},
+      {"term": "acción requerida", "weight": 2},
+      {"pattern": "cuenta (?:ha sido |sera |esta )?(?:suspendida|bloqueada|cerrada|desactivada)", "weight": 2},
+      {"term": "verifique su cuenta", "weight": 2},
+      {"term": "verifica tu cuenta", "weight": 2},
+      {"term": "inicio de sesión inusual", "weight": 2},
+      {"term": "urgente", "weight": 1}
+    ],
+    "financial": [
+      {"term": "transferencia bancaria", "weight": 2},
+      {"term": "datos bancarios", "weight": 2},
+      {"term": "tarjeta regalo", "weight": 2},
+      {"term": "reembolso pendiente", "weight": 2},
+      {"term": "datos de pago", "weight": 2},
+      {"term": "tarjeta de crédito", "weight": 1}
+    ],
+    "invoice_payment": [
+      {"term": "factura pendiente", "weight": 2},
+      {"term": "factura vencida", "weight": 2},
+      {"term": "pago rechazado", "weight": 2},
+      {"term": "el pago ha fallado", "weight": 2},
+      {"term": "pague ahora", "weight": 2},
+      {"term": "gastos de envío", "weight": 2},
+      {"term": "tasas de aduana", "weight": 2},
+      {"term": "factura", "weight": 1}
+    ],
+    "credential_reset": [
+      {"pattern": "restablece[rz]? (?:su|tu) contrasena", "weight": 2},
+      {"pattern": "contrasena (?:caduca|caducara|expira|expirara)", "weight": 2},
+      {"term": "confirme su contraseña", "weight": 2},
+      {"term": "buzón lleno", "weight": 2},
+      {"term": "contraseña", "weight": 1}
+    ],
+    "package_delivery": [
+      {"term": "paquete retenido", "weight": 2},
+      {"term": "entrega fallida", "weight": 2},
+      {"term": "intento de entrega", "weight": 2},
+      {"term": "reprogramar la entrega", "weight": 2},
+      {"term": "su paquete", "weight": 1},
+      {"term": "tu paquete", "weight": 1},
+      {"term": "número de seguimiento", "weight": 1}
+    ],
+    "prize_lottery": [
+      {"term": "ha ganado", "weight": 2},
+      {"term": "has ganado", "weight": 2},
+      {"term": "lotería", "weight": 2},
+      {"term": "reclame su premio", "weight": 2},
+      {"term": "ganador", "weight": 1},
+      {"term": "felicidades", "weight": 1},
+      {"term": "sorteo", "weight": 1}
+    ],
+    "authority_impersonation": [
+      {"term": "agencia tributaria", "weight": 2},
+      {"term": "devolución de impuestos", "weight": 2},
+      {"term": "orden judicial", "weight": 2},
+      {"term": "acciones legales", "weight": 2},
+      {"term": "hacienda", "weight": 1},
+      {"term": "policía", "weight": 1},
+      {"term": "multa", "weight": 1}
+    ]
+  }
+}
